@@ -1,0 +1,16 @@
+mysql:
+  host: "localhost"
+  port: 3306
+  user: "test"
+  password: "test"
+  db: "earth"
+  table: 
+    table_name: "dt_energy"
+    time_col: "Time"
+    power_col: "Power"
+
+wemo:
+  name: "WeMo Insight GHome"
+
+system:
+  sensing_interval: 1
