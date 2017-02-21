@@ -1,16 +1,11 @@
-mysql:
-  host: "localhost"
-  port: 3306
-  user: "test"
-  password: "test"
-  db: "earth"
-  table: 
-    table_name: "dt_energy"
-    time_col: "Time"
-    power_col: "Power"
+tippers_http_sender:
+  url: "http://sensoria.ics.uci.edu:8001/resource/observations"
+  port: 8001
+  observation_type: "wemo_energy"
 
-wemo:
-  name: "WeMo Insight GHome"
+switch_list_maintainer:
+  update_interval: 30
+  discover_wait_time: 4
 
-system:
+data_collector:
   sensing_interval: 1
