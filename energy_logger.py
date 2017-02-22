@@ -2,15 +2,14 @@ from ouimeaux.environment import Environment
 import time
 import yaml
 import logging
+import threading
 
 from switch_list_maintainer import SwitchListMaintainer
 from tippers_sender import TippersSender
 
 _config_file = './config.yml'
-
-
+env = None
 _config = {}
-_db_connection = None
 
 def get_config():
     try:
@@ -28,6 +27,11 @@ def get_config():
 def on_switch(switch):
     logging.debug("Switch found! " + str(switch.name))
 
+def update_meters_name_list():
+    global _config
+    threading.Timer(_config["switch_list_maintainer"]["update_interval"], update_meters_name_list).start()
+    global env
+    env.discover(_config["switch_list_maintainer"]["discover_wait_time"])
 
 def main():
     # System Initialization, Read config file
@@ -41,21 +45,22 @@ def main():
     logging.debug("Loaded config: " + str(_config))
 
     meters_name_list = []
+    global env
     env = Environment(on_switch)
     env.start()
-
+    #env.discover(15)
     # Find energy meters in local network and maintain the list of meters periodically
-    try:
-        maintainer = SwitchListMaintainer(
-            config=_config['switch_list_maintainer'])
-        maintainer.setDaemon(True)
-    except Exception as e:
-        logging.error(e)
-        logging.error("ERROR: Can\'t create SwitchListMaintainer")
-    else:
-        maintainer.setEnv(env)
-        maintainer.setList(meters_name_list)
-        maintainer.start()
+    #try:
+    #    maintainer = SwitchListMaintainer(
+    #        config=_config['switch_list_maintainer'])
+    #    maintainer.setDaemon(True)
+    #except Exception as e:
+    #    logging.error(e)
+    #    logging.error("ERROR: Can\'t create SwitchListMaintainer")
+    #else:
+    #    maintainer.setEnv(env)
+    #    maintainer.setList(meters_name_list)
+    #    maintainer.start()
 
     try:
         tippers_sender = TippersSender(
@@ -68,17 +73,18 @@ def main():
     else:
         tippers_sender.start()
 
+    update_meters_name_list()
     time.sleep(_config['switch_list_maintainer']['discover_wait_time'])
 
     # Main Loop Start
     while(True):
         # Get up-to-date meter list
-        meters_name_list = maintainer.getList()
+        meters_name_list = env.list_switches()
         for meter_name in meters_name_list:
             meter_instance = None
             meter_data = {}
             try:
-                meter_instance = env.get_switch()
+                meter_instance = env.get_switch(meter_name)
             except Exception as e:
                 logging.error("Error when trying to get meter instance")
                 logging.error(e)

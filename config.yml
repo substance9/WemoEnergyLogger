@@ -5,7 +5,7 @@ tippers_http_sender:
 
 switch_list_maintainer:
   update_interval: 30
-  discover_wait_time: 4
+  discover_wait_time: 6 
 
 data_collector:
   sensing_interval: 1

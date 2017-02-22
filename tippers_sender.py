@@ -2,7 +2,7 @@ import json
 import datetime
 import requests
 import threading
-import Queue
+import queue
 import logging
 
 
@@ -12,7 +12,7 @@ class TippersSender(threading.Thread):
 
     def __init__(self, queue_size=4096, config=None):
         threading.Thread.__init__(self)
-        self._queue = Queue.Queue(queue_size)
+        self._queue = queue.Queue(queue_size)
         self._config = config
 
     def _connect(self, config):

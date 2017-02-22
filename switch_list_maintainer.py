@@ -6,10 +6,10 @@ import logging
 
 class SwitchListMaintainer(threading.Thread):
     _name_list = None
-    _env = None
     _config = None
+    _env = None
 
-    def __init__(self, config=None, name_list=None, env = None):
+    def __init__(self, config=None, name_list=None):
         threading.Thread.__init__(self)
         self._name_list = name_list
         self._config = config
@@ -24,18 +24,17 @@ class SwitchListMaintainer(threading.Thread):
         try:
             self._queue.put(data, block=False)
         except Exception as e:
-            print e
+            logging.error(e)
 
     def _process_data(self, data):
         return data
 
-    def send(self, data):
-        raise NotImplementedError()
 
     def on_switch(self, switch):
             logging.debug("Switch found! " + str(switch.name))
 
     def find_energy_meter(self):
+        self._env.start()
         self._env.discover(self._config['discover_wait_time'])
         self._name_list = self._env.list_switches()
         logging.debug("List of local switches: " + str(self._env.list_switches()))
@@ -50,6 +49,7 @@ class SwitchListMaintainer(threading.Thread):
 
     def setEnv(self, env):
         self._env = env
+        
 
     def run(self):
         while(True):
