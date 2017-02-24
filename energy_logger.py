@@ -48,7 +48,7 @@ def main():
     global env
     env = Environment(on_switch)
     env.start()
-    #env.discover(15)
+    env.discover(20)
     # Find energy meters in local network and maintain the list of meters periodically
     #try:
     #    maintainer = SwitchListMaintainer(
@@ -73,7 +73,7 @@ def main():
     else:
         tippers_sender.start()
 
-    update_meters_name_list()
+    #update_meters_name_list()
     time.sleep(_config['switch_list_maintainer']['discover_wait_time'])
 
     # Main Loop Start
