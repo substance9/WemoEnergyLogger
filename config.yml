@@ -1,5 +1,5 @@
 tippers_http_sender:
-  url: "http://sensoria.ics.uci.edu:8001/resource/observations"
+  url: "http://sensoria.ics.uci.edu:8001/observation/add"
   port: 8001
   observation_type: "wemo_energy"
 

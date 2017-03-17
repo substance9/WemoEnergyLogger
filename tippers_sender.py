@@ -50,7 +50,7 @@ class TippersSender(threading.Thread):
         logging.info("Sending to TIPPERS REST API. The Message is:")
         logging.info(message_data)
         try:
-            requests.request(method='PUT',
+            requests.request(method='POST',
                              url=self._url,
                              headers=self._headers,
                              data=message_data)
