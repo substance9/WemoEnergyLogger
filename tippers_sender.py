@@ -33,9 +33,10 @@ class TippersSender(threading.Thread):
 
     def _process_data(self, data):
         observation = {}
-        observation['observation_type'] = self._config["observation_type"]
+        #observation['observation_type'] = self._config["observation_type"]
+        observation['type'] = "2"
         observation['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        observation['accuracy'] = 0
+        #observation['accuracy'] = 0
         observation['sensor_id'] = data['id']
 
         payload = {}
@@ -43,7 +44,7 @@ class TippersSender(threading.Thread):
         payload["onTodaySeconds"] = data["today_seconds"]
         payload["currentState"] = data["state"]
         observation['payload'] = payload
-        return observation
+        return [observation]
 
     def send(self, data_processed):
         message_data = json.dumps(data_processed)
