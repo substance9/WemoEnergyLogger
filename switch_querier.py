@@ -20,30 +20,32 @@ class SwitchQuerier(threading.Thread):
         self._name_set = name_set
         self._switch_name = switch_name
 
-    def get_data(self):
-        signal.signal(signal.SIGALRM, self.timeout_handler)
-        signal.alarm(self._config["query_timeout"])
+    def get_data(self,queue):
+        q = queue
         data = {}
         data["id"] = self._switch_name
         data["current_power"] = self._switch_instance.current_power
         data["today_seconds"] = self._switch_instance.today_on_time
         data["state"] = self._switch_instance.get_state()
-        return data
-
-    def timeout_handler(self, signum, frame):
-        raise Exception("Getting switch " + self._switch_name + " data timeout")
+        #return data
+        q.put(data)
 
     def send_data(self, data):
         self._data_queue.put(data)
 
     def run(self):
+        q = queue.Queue(1)
         while (True):
             try:
-                data = self.get_data()
+                t = threading.Thread(target=self.get_data(queue=q))
+                t.setDaemon(True)
+                t.start()
+                t.join()
             except Exception as e:
                 logging.error(e)
                 break
             else:
+                data = q.get()
                 self.send_data(data)
                 time.sleep(self._config["sensing_interval"])
 
