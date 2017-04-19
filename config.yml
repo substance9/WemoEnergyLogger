@@ -11,3 +11,4 @@ switch_set_maintainer:
 
 switch_querier:
   sensing_interval: 1
+  query_timeout: 10

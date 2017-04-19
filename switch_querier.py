@@ -2,6 +2,13 @@ import time
 import threading
 import queue
 import logging
+from functools import wraps
+import errno
+import os
+import signal
+
+
+
 
 class SwitchQuerier(threading.Thread):
 
@@ -14,6 +21,8 @@ class SwitchQuerier(threading.Thread):
         self._switch_name = switch_name
 
     def get_data(self):
+        signal.signal(signal.SIGALRM, self.timeout_handler)
+        signal.alarm(self._config["query_timeout"])
         data = {}
         data["id"] = self._switch_name
         data["current_power"] = self._switch_instance.current_power
@@ -21,13 +30,25 @@ class SwitchQuerier(threading.Thread):
         data["state"] = self._switch_instance.get_state()
         return data
 
+    def timeout_handler(self, signum, frame):
+        raise Exception("Getting switch " + self._switch_name + " data timeout")
+
     def send_data(self, data):
         self._data_queue.put(data)
 
     def run(self):
         while (True):
-            data = self.get_data()
-            self.send_data(data)
-            time.sleep(self._config["sensing_interval"])
+            try:
+                data = self.get_data()
+            except Exception as e:
+                logging.error(e)
+                break
+            else:
+                self.send_data(data)
+                time.sleep(self._config["sensing_interval"])
+
+        logging.debug("current name set: " + str(self._name_set))
+        self._name_set.remove(self._switch_name)
+        logging.debug("after removal, name set: " + str(self._name_set))
 
 

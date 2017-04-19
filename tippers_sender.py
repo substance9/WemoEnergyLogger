@@ -5,7 +5,6 @@ import threading
 import queue
 import logging
 
-
 class TippersSender(threading.Thread):
     _queue = None
     _config = None
