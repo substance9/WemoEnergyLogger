@@ -1,14 +1,14 @@
-from ouimeaux.environment import Environment
 import time
 import yaml
 import logging
 import threading
+import queue
 
-from switch_list_maintainer import SwitchListMaintainer
+from switch_set_maintainer import SwitchSetMaintainer
+#from switch_querier import SwitchQuerier
 from tippers_sender import TippersSender
 
 _config_file = './config.yml'
-env = None
 _config = {}
 
 def get_config():
@@ -24,17 +24,10 @@ def get_config():
         return config
 
 
-def on_switch(switch):
-    logging.debug("Switch found! " + str(switch.name))
-
-def update_meters_name_list():
-    global _config
-    threading.Timer(_config["switch_list_maintainer"]["update_interval"], update_meters_name_list).start()
-    global env
-    env.discover(_config["switch_list_maintainer"]["discover_wait_time"])
-
 def main():
+    ###########################################
     # System Initialization, Read config file
+    ###########################################
     logging.basicConfig(level=logging.INFO)
     logging.debug("Program start in main() function")
     global _config
@@ -44,27 +37,46 @@ def main():
         return
     logging.debug("Loaded config: " + str(_config))
 
-    meters_name_list = []
-    global env
-    env = Environment(on_switch)
-    env.start()
-    env.discover(20)
-    # Find energy meters in local network and maintain the list of meters periodically
-    #try:
-    #    maintainer = SwitchListMaintainer(
-    #        config=_config['switch_list_maintainer'])
-    #    maintainer.setDaemon(True)
-    #except Exception as e:
-    #    logging.error(e)
-    #    logging.error("ERROR: Can\'t create SwitchListMaintainer")
-    #else:
-    #    maintainer.setEnv(env)
-    #    maintainer.setList(meters_name_list)
-    #    maintainer.start()
+
+    ###########################################
+    # Set up the important data structures
+    ###########################################
+    # The set that includes the names of the Wemo switches
+    meters_name_set = set()
+
+    # The queue that contains the wemo energy data, the elements are
+    # put by the queriers and get by the sender
+    data_queue = queue.Queue(_config['queue_max_size'])
+
+
+    ###########################################
+    # Start Ouimeaux Env
+    ###########################################
+#    meters_name_set = set()
+#    env = Environment(on_switch)
+ #   env.start()
+
+
+    ###########################################
+    # Start Switch Set Maintainer
+    ###########################################
+    try:
+        maintainer = SwitchSetMaintainer(
+            config=_config,
+            name_set=meters_name_set,
+            data_queue=data_queue
+        )
+        maintainer.setDaemon(True)
+    except Exception as e:
+        logging.error(e)
+        logging.error("Can\'t create SwitchSetMaintainer")
+    else:
+        maintainer.start()
 
     try:
         tippers_sender = TippersSender(
-            config=_config["tippers_http_sender"]
+            config=_config["tippers_http_sender"],
+            data_queue=data_queue
         )
         tippers_sender.setDaemon(True)
     except Exception as e:
@@ -74,36 +86,11 @@ def main():
         tippers_sender.start()
 
     #update_meters_name_list()
-    time.sleep(_config['switch_list_maintainer']['discover_wait_time'])
+    time.sleep(_config['switch_set_maintainer']['discover_wait_time'])
 
     # Main Loop Start
     while(True):
-        # Get up-to-date meter list
-        meters_name_list = env.list_switches()
-        for meter_name in meters_name_list:
-            meter_instance = None
-            meter_data = {}
-            try:
-                meter_instance = env.get_switch(meter_name)
-            except Exception as e:
-                logging.error("Error when trying to get meter instance")
-                logging.error(e)
-            if meter_instance is not None:
-                try:
-                    meter_data["id"] = meter_name
-                    meter_data["current_power"] = meter_instance.current_power
-                    meter_data["today_seconds"] = meter_instance.today_on_time
-                    meter_data["state"] = meter_instance.get_state()
-                except Exception as e:
-                    logging.error("Error when trying to get meter data")
-                    logging.error(e)
-
-            if meter_data:
-                tippers_sender.push(meter_data)
-
-
-
-        time.sleep(_config['data_collector']['sensing_interval'])
+        pass
 
 
 if __name__ == "__main__":

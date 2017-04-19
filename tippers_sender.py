@@ -10,9 +10,9 @@ class TippersSender(threading.Thread):
     _queue = None
     _config = None
 
-    def __init__(self, queue_size=4096, config=None):
+    def __init__(self, queue_size=4096, config=None, data_queue=queue.Queue()):
         threading.Thread.__init__(self)
-        self._queue = queue.Queue(queue_size)
+        self._queue = data_queue
         self._config = config
 
     def _connect(self, config):
@@ -21,15 +21,6 @@ class TippersSender(threading.Thread):
 
         self._headers = {"Accept": "application/json",
                          "Content-type": "application/json"}
-
-    def push(self, data):
-        self._on_get_data(data)
-
-    def _on_get_data(self, data):
-        try:
-            self._queue.put(data, block=False)
-        except Exception as e:
-            logging.error( e)
 
     def _process_data(self, data):
         observation = {}
