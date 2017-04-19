@@ -40,7 +40,9 @@ class SwitchQuerier(threading.Thread):
                 t = threading.Thread(target=self.get_data(queue=q))
                 t.setDaemon(True)
                 t.start()
-                t.join()
+                t.join(timeout=self._config["query_timeout"])
+                if t.is_alive is True:
+                    break
             except Exception as e:
                 logging.error(e)
                 break
@@ -49,8 +51,7 @@ class SwitchQuerier(threading.Thread):
                 self.send_data(data)
                 time.sleep(self._config["sensing_interval"])
 
-        logging.debug("current name set: " + str(self._name_set))
         self._name_set.remove(self._switch_name)
-        logging.debug("after removal, name set: " + str(self._name_set))
+
 
 
