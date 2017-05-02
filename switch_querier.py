@@ -7,7 +7,7 @@ import errno
 import os
 import signal
 
-from energy_logger import METERS_NAME_SET
+from resource import METERS_NAME_SET
 
 
 class SwitchQuerier(threading.Thread):

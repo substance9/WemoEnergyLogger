@@ -4,13 +4,13 @@ import logging
 import threading
 import queue
 
+_config_file = './config.yml'
+_config = {}
+
+from resource import METERS_NAME_SET
 from switch_set_maintainer import SwitchSetMaintainer
 #from switch_querier import SwitchQuerier
 from tippers_sender import TippersSender
-
-_config_file = './config.yml'
-_config = {}
-METERS_NAME_SET = None
 
 def get_config():
     try:

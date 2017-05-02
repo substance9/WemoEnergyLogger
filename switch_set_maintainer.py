@@ -5,7 +5,7 @@ import logging
 import queue
 
 from switch_querier import SwitchQuerier
-from energy_logger import METERS_NAME_SET
+from resource import METERS_NAME_SET
 
 class SwitchSetMaintainer(threading.Thread):
 
