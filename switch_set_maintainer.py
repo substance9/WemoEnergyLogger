@@ -5,12 +5,13 @@ import logging
 import queue
 
 from switch_querier import SwitchQuerier
+from energy_logger import METERS_NAME_SET
 
 class SwitchSetMaintainer(threading.Thread):
 
     def __init__(self, config=None, name_set=set(), data_queue=queue.Queue()):
         threading.Thread.__init__(self)
-        self._name_set = name_set
+        self._name_set = METERS_NAME_SET
         self._config = config['switch_set_maintainer']
         self._config_querier = config['switch_querier']
         self._data_queue = data_queue

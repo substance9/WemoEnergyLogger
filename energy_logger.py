@@ -10,6 +10,7 @@ from tippers_sender import TippersSender
 
 _config_file = './config.yml'
 _config = {}
+METERS_NAME_SET = None
 
 def get_config():
     try:
@@ -42,7 +43,8 @@ def main():
     # Set up the important data structures
     ###########################################
     # The set that includes the names of the Wemo switches
-    meters_name_set = set()
+    global METERS_NAME_SET
+    METERS_NAME_SET = set()
 
     # The queue that contains the wemo energy data, the elements are
     # put by the queriers and get by the sender
@@ -63,7 +65,7 @@ def main():
     try:
         maintainer = SwitchSetMaintainer(
             config=_config,
-            name_set=meters_name_set,
+            name_set=METERS_NAME_SET,
             data_queue=data_queue
         )
         maintainer.setDaemon(True)
