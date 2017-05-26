@@ -7,8 +7,8 @@ tippers_http_sender:
 
 switch_set_maintainer:
   update_interval: 60
-  discover_wait_time: 20
+  discover_wait_time: 30
 
 switch_querier:
-  sensing_interval: 1
+  sensing_interval: 5 
   query_timeout: 10
