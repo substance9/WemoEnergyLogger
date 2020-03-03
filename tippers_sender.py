@@ -38,21 +38,22 @@ class TippersSender(threading.Thread):
         #payload["onTodaySeconds"] = data["today_seconds"]
         #payload["currentState"] = data["state"]
         observation['payload'] = payload
-        return [observation]
+        return observation
 
     def send(self, data_processed):
         message_data = json.dumps(data_processed)
         logging.info("Sending to TIPPERS REST API. The Message is:")
         logging.info(message_data)
-        #try:
-        #    requests.request(method='POST',
-        #                     url=self._url,
-        #                     headers=self._headers,
-        #                     data=message_data)
-       #     pass
-        #except Exception as e:
-         #   logging.error(e)
-          #  logging.error("ERROR: Failed to PUT data to TIPPERS")
+        logging.info("sending to url:" + self._url)
+        try:
+            requests.request(method='POST',
+                             url=self._url,
+                             headers=self._headers,
+                             data=message_data)
+            pass
+        except Exception as e:
+            logging.error(e)
+            logging.error("ERROR: Failed to PUT data to TIPPERS")
 
     def run(self):
         self._connect(self._config)
