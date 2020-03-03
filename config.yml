@@ -1,9 +1,8 @@
 queue_max_size: 4096
 
 tippers_http_sender:
-  url: "http://sensoria.ics.uci.edu:8001/observation/add"
-  port: 8001
-  observation_type: "wemo_energy"
+  url: "http://128.195.53.189:4003/observation/1"
+  #observation_type: "wemo_energy"
 
 switch_set_maintainer:
   update_interval: 60
