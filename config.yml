@@ -1,7 +1,7 @@
 queue_max_size: 4096
 
 tippers_http_sender:
-  url: "http://128.195.53.189:4003/api/observation/1"
+  url: "http://test-tippers.ics.uci.edu/api/observation/1"
   #observation_type: "wemo_energy"
 
 switch_set_maintainer:
